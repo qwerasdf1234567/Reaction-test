@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>워노구 시참 반속 테스트</title>
+  <style>
+    body {
+      background-color: black;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    img {
+      display: none;
+      position: absolute;
+      cursor: pointer;
+    }
+    #startImage {
+      display: block;
+    }
+    img.fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 시작 버튼 -->
+  <img id="startImage" src="startbutton.png" alt="Start" width="200" />
+
+  <!-- 반응 버튼 -->
+  <img id="reactionButton" src="lol.png" alt="React" width="200" />
+
+  <!-- 성공/실패 이미지 -->
+  <img id="successImage" class="fullscreen" src="success.png" alt="Success" />
+  <img id="failImage" class="fullscreen" src="fail.png" alt="Fail" />
+
+  <!-- 사운드 -->
+  <audio id="cueSound" src="sound.mp3"></audio>
+  <audio id="failSound" src="fail.mp3"></audio>
+  <audio id="successSound" src="success.mp3"></audio>
+
+  <script>
+    const startImage = document.getElementById('startImage');
+    const reactionButton = document.getElementById('reactionButton');
+    const successImage = document.getElementById('successImage');
+    const failImage = document.getElementById('failImage');
+    const cueSound = document.getElementById('cueSound');
+    const successSound = document.getElementById('successSound');
+    const failSound = document.getElementById('failSound');
+
+    // 실패 멘트 리스트
+    const failMessages = [
+      "Tip.그거 아세요? 5000원이면 새치기를 할 수 있답니다.",
+      "Tip.당신의 실패가 더 나은 선택일 수 있습니다.(다크워노일때)",
+      "Tip.ㅋㅋ 아쉽다. 화이팅~",
+      "Tip.인간의 안구 크기는 3세 이후로는 거의 자라지 않는다.",
+      "Tip.칼바람은 새치기가 3000원",
+      "Tip.지난 4000년 동안 새로 가축화 된 동물은 없다.",
+      "Tip.116살까지 살 가능성은 20억분의 1",
+      "Tip.개구리를 우주로 데려가면 이상한 행동을 보인다.",
+      "Tip.타조의 안구는 뇌보다 크다.",
+      "Tip.새를 우주로 보내면 죽는다.",
+      "Tip.파라과이에서는 둘 다 헌혈 제공자로 등록되어 있으면 결투가 합법이다.",
+      "Tip.돼지는 똑똑하다...김은별?!",
+      "Tip.세계에서 개미가 없는 땅은 아이슬란드, 남극, 그린란드뿐이다.",
+      "Tip.대부분의 립스틱 성분에 물고기 비늘이 들어있다.",
+      "Tip.인간이 일생동안 키우는 머리카락 총길이는 평균적으로 950km이다.",
+      "Tip.남자의 경우 키가 작은 사람이 좀 더 오래산다.",
+      "Tip.곤충도 성격이 있다.",
+      "Tip.인간은 두려움과 위기를 느끼면 시력이 좋아진다.",
+      "Tip.우주에 가면 키가 커진다.",
+      "Tip.인간은 평균적으로 하루에 풍선 하나분의 방귀를 만든다.",
+      "Tip.하루에 눈알 움직이는 횟수는 10만 이상이다.",
+      "Tip.고양이 오줌은 uv라이트로 비추면 빛이 난다.",
+      "Tip.역사상 가장 오래된 조리법은 맥주 제조법이다.",
+      "Tip.케챱은 원래 약이었다.",
+      "Tip.프링글스는 공식적으로 감자칩이 아니다.",
+      "Tip.당근은 대부분 보라색이었다.",
+      "Tip.바닐라향은 중독성이 있다.",
+      "Tip.111,111,111 곱하기 111,111,111은 12,345,678,987,654,321",
+    ];
+
+    function getRandomFailMessage() {
+      return failMessages[Math.floor(Math.random() * failMessages.length)];
+    }
+
+    let startTime = 0;
+    let isWaitingForReaction = false; // 버튼이 화면에 보이는 상태인지
+    let reacted = false;              // 이미 반응했는지 여부
+
+    // 시작 버튼 클릭 시 테스트 시작
+    startImage.addEventListener('click', () => {
+      startImage.style.display = 'none';
+      cueSound.play();
+
+      isWaitingForReaction = false;
+      reacted = false;
+
+      cueSound.onended = () => {
+        setTimeout(() => {
+          reactionButton.style.display = 'block';
+          startTime = performance.now();
+          isWaitingForReaction = true; // 이제 반응 버튼 활성화
+        }, 500);
+      };
+    });
+
+    // 반응 버튼 클릭 시
+    reactionButton.addEventListener('click', () => {
+      if (!isWaitingForReaction || reacted) return;
+      reacted = true;
+
+      const reactionTime = performance.now() - startTime;
+      reactionButton.style.display = 'none';
+
+      if (reactionTime <= 250) {
+        successImage.style.display = 'block';
+        successSound.play();
+
+        setTimeout(() => {
+          alert(`🎉 성공! 반응속도: ${Math.round(reactionTime)}ms`);
+          location.reload();
+        }, 1500);
+      } else {
+        failImage.style.display = 'block';
+        failSound.play();
+
+        setTimeout(() => {
+          alert(`💥 실패! 반응속도: ${Math.round(reactionTime)}ms\n\n${getRandomFailMessage()}`);
+          location.reload();
+        }, 1500);
+      }
+    });
+
+    // 버튼 나오기 전 클릭 시 실패 처리
+    document.body.addEventListener('click', (e) => {
+      if (
+        !isWaitingForReaction &&
+        !reacted &&
+        startImage.style.display === 'none' &&
+        e.target !== reactionButton &&
+        e.target !== startImage
+      ) {
+        reacted = true;
+        failImage.style.display = 'block';
+        failSound.play();
+
+        setTimeout(() => {
+          alert(`💥 실패! 반응 버튼이 나오기 전에 누르셨습니다!\n\n${getRandomFailMessage()}`);
+          location.reload();
+        }, 1500);
+      }
+    });
+  </script>
+
+</body>
+</html>
